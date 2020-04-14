@@ -1,2 +1,2 @@
-# personal-website-blog
+# personal-website
 Personal Website Source Code
