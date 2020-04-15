@@ -20,7 +20,7 @@ class Square extends React.Component {
 
 function Square(props) {
   return(
-    <button className="square" onClick={props.onClick}>
+    <button className="square" onClick={props.onClick} style={props.style}>
       {props.value}
     </button>
   )
@@ -39,20 +39,53 @@ class Board extends React.Component {
   */
 
 
-  renderSquare(i) {
+  renderSquare(i, styles) {
     return (
         <Square 
             value={this.props.squares[i]} 
             onClick={() => this.props.onClick(i)}
+            style={styles}
         />
     );
   }
 //        <div className="status">{status}</div>
 
+createBox() { //so things are really just arrays
+  let box = [];
+
+  const regular_style = {};
+  const highlighted_style = {
+    background: 'grey',
+    //border: '1px solid #000'
+  }
+
+
+  for (let i = 0; i < 3; ++i) {
+    let squares = [];
+
+    for (let j = 0; j < 3; ++j) {
+      let style = regular_style;
+
+      //check if winner
+      for (let k = 0; k < 3; ++k) {
+        if ((this.props.winning_path) && ((j + i * 3) == this.props.winning_path[k])) {
+          style = highlighted_style;
+        }
+      }
+
+      squares.push(this.renderSquare((j + i * 3), style));
+    }
+
+    box.push(<div>{squares}</div>);
+
+  }
+
+  return box;
+}
+
   render() {
     return (
-
-      
+      /*
       <div>
         <div className="board-row">
           {this.renderSquare(0)}
@@ -70,7 +103,8 @@ class Board extends React.Component {
           {this.renderSquare(8)}
         </div>
       </div>
-
+*/
+      this.createBox()
       
     );
   }
@@ -86,6 +120,7 @@ class Game extends React.Component {
       }],
       stepNumber: 0,
       xIsNext: true,
+      historyReverseOrder: false,
     };
   }
 
@@ -120,12 +155,19 @@ class Game extends React.Component {
     });
   }
 
+  toggleOrder() {
+    this.setState({
+      historyReverseOrder: !this.state.historyReverseOrder,
+    });
+  }
+
   render() {
-    const history = this.state.history;
+    const history = this.state.history.slice(0, this.state.stepNumber + 1);
     const current = history[this.state.stepNumber];
     const winner = calculateWinner(current.squares);
 
-    const moves = history.map((step, move) => { //takes in item, and index
+
+    let moves = history.map((step, move) => { //takes in item, and index
       const last_move_str = '(' + row(step.clicked) + ', ' + col(step.clicked) + ')';
       let desc = move ?
         'Go to move #' + move + ' ' + last_move_str:
@@ -152,25 +194,37 @@ class Game extends React.Component {
         );
     });
 
+    moves = this.state.historyReverseOrder ? moves.reverse() : moves;
 
 
     let status;
-    if (winner) {
-      status = 'Winner: ' + winner;
+    if (winner && winner.tie) {
+      status = "Tie";
+    } else if (winner) {
+      status = 'Winner: ' + winner.winner;
     } else {
       status = 'Next player: ' + (this.state.xIsNext ? 'X' : 'O');
     }
+
+    let winning_path = null;
+    if (winner) {
+      winning_path = winner.winning_path;
+    } 
+
     return (
       <div className="game">
         <div className="game-board">
           <Board 
             squares={current.squares}
             onClick={(i) => this.handleClick(i)}
+            winning_path={winning_path}
           />
         </div>
         <div className="game-info">
           <div>{status}</div>
           <ol>{moves}</ol>
+          <button id="toggle_order" onClick={() => this.toggleOrder()}>Toggle Order</button>
+          <button id="reset_button" onClick={() => this.jumpTo(0)}>Reset</button>
         </div>
       </div>
     );
@@ -199,14 +253,35 @@ function calculateWinner(squares) {
   ];
 
   //For each path, check if a winner
+
+  let tie = true;
+
   for (let i = 0; i < paths.length; ++i) {
     const [a, b, c] = paths[i];
+
+    if (!(squares[a] && squares[b] && squares[c])) {
+      tie = false;
+    }
+
     if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
+      
+      return {
+        winning_path: paths[i],
+        winner: squares[a],
+        tie: false,
+         //'X' or 'O'
+      };
 
-      return squares[a]; //'X' or 'O'
-    } 
-
+    }
   }
+
+  if (tie) {
+    return {
+      winning_path: null,
+      winner: null,
+      tie: true}
+  }
+
   return null;
 }
 
@@ -216,5 +291,4 @@ function row(square) {
 
 function col(square) {
   return square % 3 + 1;
-
 }
