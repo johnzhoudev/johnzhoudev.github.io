@@ -3,3 +3,5 @@ item 2
 item 3
 
 Awesome new module about news!
+
+Changes (by justin bieber)
