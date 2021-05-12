@@ -1,0 +1,29 @@
+.app-component-wrapper {
+    height: calc(100vh - 16px);
+    color: white;
+}
+
+.title {
+    font-family: "Roboto", sans-serif;
+    font-size: 400px;
+}
+
+.subheading-wrapper {
+    margin-top: 120px;
+}
+
+.subheading {
+    font-family: "Roboto", sans-serif;
+    font-size: 35px;
+    position: absolute;
+    right: min(15vw, 300px);
+    padding: 30px;
+    border: 2px solid white;
+    border-radius: 50px;
+}
+
+.static-site-toggle {
+    position: absolute;
+    bottom: 0px;
+    font-family: "Roboto", sans-serif;
+}
