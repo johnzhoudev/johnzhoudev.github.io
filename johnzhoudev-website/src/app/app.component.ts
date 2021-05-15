@@ -6,7 +6,7 @@ import { Component } from '@angular/core';
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent {
-  title = 'Hello.';
+  title = 'Good Evening.';
 
   onSubheadingMouseEnter(): void {
     this.toggleMenuVisibility();
